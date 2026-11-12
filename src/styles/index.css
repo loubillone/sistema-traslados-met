@@ -1,0 +1,6 @@
+/* Punto de entrada de estilos. Se carga después de Bootstrap para sobrescribirlo. */
+@import "./variables.css";
+@import "./base.css";
+@import "./layout.css";
+@import "./components.css";
+@import "./login.css";
