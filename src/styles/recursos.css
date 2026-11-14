@@ -1,0 +1,250 @@
+/* ---------- Choferes y Vehículos (Etapa 5A) ---------- */
+
+/* Tarjetas de choferes (Figma) */
+.driver-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 992px) {
+  .driver-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.driver-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.driver-card.is-inactive {
+  background: #f9fafb;
+}
+
+.driver-card-top {
+  display: flex;
+  gap: 16px;
+}
+
+.driver-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.driver-card.is-inactive .driver-avatar {
+  background: #99a1af;
+}
+
+.driver-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.driver-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.driver-card-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.driver-card-name a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.driver-card-name a:hover {
+  color: var(--color-accent);
+}
+
+.driver-card-dni {
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.driver-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 14px 0 0;
+}
+
+.driver-card-grid dt {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.driver-card-grid dd {
+  margin: 0;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.driver-card-category {
+  color: var(--color-text-secondary);
+}
+
+.driver-card-affected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #894b00;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.driver-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.driver-card-actions .card-action-btn {
+  flex: 0 0 auto;
+}
+
+.driver-availability-select {
+  width: auto;
+  height: 32px;
+  min-width: 150px;
+  font-size: 14px;
+}
+
+@media (max-width: 575.98px) {
+  .driver-avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 17px;
+  }
+
+  .driver-card {
+    padding: 16px;
+  }
+}
+
+/* Vencimientos con semáforo */
+.expiry-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.expiry-box-title {
+  font-size: 15px;
+}
+
+.expiry-box-text {
+  font-size: 12px;
+}
+
+.expiry-box--success { border-color: #b9f8cf; background: #dcfce7; color: #016630; }
+.expiry-box--warning { border-color: #fff085; background: #fef9c2; color: #894b00; }
+.expiry-box--danger { border-color: #ffc9c9; background: #ffe2e2; color: #9f0712; }
+.expiry-box--neutral { border-color: var(--color-border); background: var(--color-border-soft); color: var(--color-text-strong); }
+
+.expiry-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.expiry-inline--success { color: #00a63e; }
+.expiry-inline--warning { color: #d08700; }
+.expiry-inline--danger { color: #e7000b; }
+.expiry-inline--neutral { color: var(--color-text-muted); }
+
+.expiry-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.expiry-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.expiry-alert svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.expiry-alert--warning { background: #fefce8; color: #894b00; }
+.expiry-alert--danger { background: #fef2f2; color: #9f0712; }
+
+/* Tabla de vehículos */
+.vehicle-plate {
+  color: var(--color-text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.vehicle-plate:hover {
+  color: var(--color-accent);
+}
+
+.vehicle-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vehicle-affected {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #d08700;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vehicle-toolbar .vehicle-filter {
+  margin-bottom: 0;
+  min-width: 200px;
+}
+
+/* Avisos de SweetAlert con viajes afectados */
+.swal-affected {
+  padding: 10px 12px;
+  border: 1px solid #fff085;
+  border-radius: var(--radius);
+  background: #fefce8;
+  color: #894b00;
+  font-size: 14px;
+  text-align: left;
+}

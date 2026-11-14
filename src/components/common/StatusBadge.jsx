@@ -1,13 +1,24 @@
-import { ESTADOS_ASISTENCIA, ESTADOS_PASAJERO, ESTADOS_VEHICULO, ESTADOS_VIAJE } from "../../constants/estados";
+import {
+  DISPONIBILIDAD_CHOFER,
+  ESTADOS_ASISTENCIA,
+  ESTADOS_PASAJERO,
+  ESTADOS_REGISTRO_ASISTENCIA,
+  ESTADOS_TURNO,
+  ESTADOS_VEHICULO,
+  ESTADOS_VIAJE,
+} from "../../constants/estados";
 
 const CATALOGS = {
   viaje: ESTADOS_VIAJE,
   asistencia: ESTADOS_ASISTENCIA,
   vehiculo: ESTADOS_VEHICULO,
   pasajero: ESTADOS_PASAJERO,
+  registro: ESTADOS_REGISTRO_ASISTENCIA,
+  chofer: DISPONIBILIDAD_CHOFER,
+  turno: ESTADOS_TURNO,
 };
 
-/** Etiqueta de estado coloreada. `type` indica el catálogo: viaje | asistencia | vehiculo | pasajero. */
+/** Etiqueta de estado coloreada. `type` indica el catálogo: viaje | asistencia | registro | chofer | turno | vehiculo | pasajero. */
 export default function StatusBadge({ estado, type = "viaje" }) {
   const config = CATALOGS[type]?.[estado] ?? { label: estado, variant: "neutral" };
   return <span className={`status-badge status-badge--${config.variant}`}>{config.label}</span>;

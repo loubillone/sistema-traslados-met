@@ -1,0 +1,331 @@
+/* ---------- Gestión de Viajes ---------- */
+
+/* Botón "Filtros" con contador de filtros aplicados */
+.btn-app.is-pressed {
+  border-color: #bedbff;
+  background: #eff6ff;
+  color: #193cb8;
+}
+
+.filter-count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* Panel de filtros */
+.trip-filters {
+  margin-bottom: 16px;
+  padding: 16px 16px 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #f9fafb;
+}
+
+.trip-filters .form-field {
+  margin-bottom: 0;
+}
+
+.trip-filters .input-app {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.trip-filters .input-app.is-invalid {
+  border-color: var(--stat-red);
+  background: #fff5f5;
+}
+
+.trip-filters-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding-bottom: 16px;
+}
+
+.active-filters-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: #eff6ff;
+  color: #193cb8;
+  font-size: 13px;
+}
+
+/* Tabla */
+.trip-passenger {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.trip-passenger-dni {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.trip-actions {
+  display: inline-flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.trip-action {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.trip-action:hover {
+  border-color: #d1d5dc;
+  background: var(--color-border-soft);
+  color: var(--color-text);
+}
+
+.trip-action--info:hover {
+  border-color: #bedbff;
+  background: #eff6ff;
+  color: #193cb8;
+}
+
+.trip-action--success:hover {
+  border-color: #b9f8cf;
+  background: #f0fdf4;
+  color: #008236;
+}
+
+.trip-action--danger:hover {
+  border-color: #ffc9c9;
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+/* Formulario */
+.trip-passenger-summary {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #bedbff;
+  border-radius: var(--radius);
+  background: #eff6ff;
+}
+
+.trip-passenger-summary-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #193cb8;
+}
+
+.trip-passenger-summary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trip-passenger-summary-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.trip-passenger-summary-meta,
+.trip-passenger-summary-alert {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.trip-passenger-summary-alert {
+  color: #894b00;
+}
+
+.trip-passenger-summary-link {
+  margin-top: 4px;
+  color: var(--color-accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.trip-passenger-summary-link:hover {
+  text-decoration: underline;
+}
+
+.trip-passenger-placeholder {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+@media (min-width: 992px) {
+  .trip-passenger-placeholder,
+  .trip-passenger-summary {
+    margin-top: 28px;
+  }
+}
+
+.trip-suggestion {
+  display: block;
+  margin: -12px 0 20px;
+  text-align: left;
+}
+
+/* Recorrido: sentido del viaje (ida: domicilio → institución; vuelta: institución → domicilio) */
+.trip-route-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #f9fafb;
+  color: var(--color-text-strong);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (min-width: 576px) {
+  .trip-route-summary {
+    margin-top: 28px;
+  }
+}
+
+.trip-route-summary svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.trip-legacy-note {
+  margin: -8px 0 16px;
+}
+
+/* Detalle: avisos */
+.trip-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+}
+
+.trip-notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.trip-notice--danger {
+  border-color: #ffc9c9;
+  background: #fef2f2;
+  color: #9f0712;
+}
+
+.trip-notice--info {
+  border-color: #bedbff;
+  background: #eff6ff;
+  color: #193cb8;
+}
+
+.trip-notice--warning {
+  border-color: #fff085;
+  background: #fefce8;
+  color: #894b00;
+}
+
+.trip-notice-note {
+  margin-top: 2px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.trip-notice-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+/* Detalle: historial de cambios */
+.trip-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trip-timeline-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-border-soft);
+  color: var(--color-text-secondary);
+}
+
+.trip-timeline-item--creacion .trip-timeline-icon { background: #dbeafe; color: #193cb8; }
+.trip-timeline-item--reasignacion .trip-timeline-icon { background: #fef9c2; color: #894b00; }
+.trip-timeline-item--estado .trip-timeline-icon { background: #dcfce7; color: #016630; }
+.trip-timeline-item--cancelacion .trip-timeline-icon { background: #ffe2e2; color: #9f0712; }
+
+.trip-timeline-detail {
+  color: var(--color-text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.trip-timeline-date {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+/* Diálogos de SweetAlert2 del módulo */
+.swal-list {
+  margin: 8px 0;
+  padding-left: 18px;
+  font-size: 14px;
+  text-align: left;
+}

@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye } from "lucide-react";
 import DataTable from "../common/DataTable";
 import Pagination from "../common/Pagination";
 import SegmentedControl from "../common/SegmentedControl";
@@ -6,6 +8,7 @@ import StatusBadge from "../common/StatusBadge";
 import { formatDate } from "../../utils/dates";
 import { paginate } from "../../utils/format";
 import { fullName } from "../../utils/selectors";
+import { tripRoute } from "../../utils/trips";
 
 const PAGE_SIZE = 10;
 
@@ -20,7 +23,7 @@ const FILTERS = {
  * Historial de viajes del pasajero. Orden: primero los próximos (del más cercano
  * al más lejano) y luego los anteriores (del más reciente al más antiguo).
  */
-export default function PassengerTripsHistory({ viajes, todayIso, lookups }) {
+export default function PassengerTripsHistory({ viajes, todayIso, lookups, backTo }) {
   const [filter, setFilter] = useState("todos");
   const [page, setPage] = useState(1);
 
@@ -45,8 +48,8 @@ export default function PassengerTripsHistory({ viajes, todayIso, lookups }) {
   const columns = [
     { key: "fecha", header: "Fecha", render: (v) => formatDate(v.fecha), cellClassName: "text-nowrap" },
     { key: "hora", header: "Hora" },
-    { key: "origen", header: "Origen", cellClassName: "cell-muted" },
-    { key: "destino", header: "Destino", render: (v) => lookups.instituciones[v.institucionId]?.nombre ?? "—" },
+    { key: "origen", header: "Origen", render: (v) => tripRoute(v, lookups.instituciones[v.institucionId]).origen, cellClassName: "cell-muted" },
+    { key: "destino", header: "Destino", render: (v) => tripRoute(v, lookups.instituciones[v.institucionId]).destino },
     { key: "chofer", header: "Chofer", render: (v) => fullName(lookups.choferes[v.choferId]), cellClassName: "cell-muted" },
     {
       key: "vehiculo",
@@ -55,6 +58,23 @@ export default function PassengerTripsHistory({ viajes, todayIso, lookups }) {
       cellClassName: "cell-muted text-nowrap",
     },
     { key: "estado", header: "Estado", render: (v) => <StatusBadge estado={v.estado} /> },
+    {
+      key: "detalle",
+      header: "Detalle",
+      className: "text-end",
+      cellClassName: "text-end",
+      render: (v) => (
+        <Link
+          to={`/viajes/${v.id}`}
+          state={backTo ? { from: backTo } : undefined}
+          className="trip-action"
+          title="Ver detalle del viaje"
+          aria-label={`Ver detalle del viaje ${v.id}`}
+        >
+          <Eye size={17} strokeWidth={2} />
+        </Link>
+      ),
+    },
   ];
 
   return (

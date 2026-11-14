@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { ArrowLeft, Car, ClipboardCheck, DollarSign, SquarePen, UserCheck, UserX } from "lucide-react";
+import { ArrowLeft, Car, ClipboardCheck, DollarSign, Plus, SquarePen, UserCheck, UserX } from "lucide-react";
 import PageHeader from "../../components/common/PageHeader";
 import ContentCard from "../../components/common/ContentCard";
 import StatCard from "../../components/common/StatCard";
@@ -18,6 +18,7 @@ import { formatDate, todayISO } from "../../utils/dates";
 import { formatCurrency } from "../../utils/format";
 import { buildIndex, fullName } from "../../utils/selectors";
 import { summarizeAttendance } from "../../utils/passengers";
+import { getAttendanceStatus, indexAttendanceByTrip } from "../../utils/attendance";
 
 /** Ficha completa del pasajero. Todos los datos provienen del DataProvider. */
 export default function PassengerDetailPage() {
@@ -53,6 +54,11 @@ export default function PassengerDetailPage() {
     [data.presupuestos, id],
   );
   const resumen = useMemo(() => summarizeAttendance(asistencias), [asistencias]);
+  // Viajes de hoy o anteriores sin asistencia: se informan aparte, no son ausencias.
+  const sinRegistrar = useMemo(() => {
+    const conAsistencia = indexAttendanceByTrip(asistencias);
+    return viajes.filter((v) => getAttendanceStatus(v, conAsistencia.get(v.id), today) === "sin_registrar").length;
+  }, [viajes, asistencias, today]);
 
   // Al llegar con #viajes, #asistencias, etc. se desplaza a la sección.
   useEffect(() => {
@@ -100,6 +106,16 @@ export default function PassengerDetailPage() {
         }
         actions={
           <>
+            {pasajero.activo && (
+              <Link
+                to={`/viajes/nuevo?pasajero=${pasajero.id}`}
+                state={{ from: `/pasajeros/${pasajero.id}` }}
+                className="btn-app btn-app-primary btn-app-lg"
+              >
+                <Plus size={18} strokeWidth={2} aria-hidden="true" />
+                Programar viaje
+              </Link>
+            )}
             <Link to={`/pasajeros/${pasajero.id}/editar`} className="btn-app btn-app-outline btn-app-lg">
               <SquarePen size={18} strokeWidth={2} aria-hidden="true" />
               Editar ficha
@@ -220,8 +236,15 @@ export default function PassengerDetailPage() {
       </section>
 
       <section id="viajes" className="detail-section mb-4">
-        <ContentCard title="Historial de viajes">
-          <PassengerTripsHistory viajes={viajes} todayIso={today} lookups={lookups} />
+        <ContentCard
+          title="Historial de viajes"
+          actions={
+            <Link to={`/viajes?pasajero=${pasajero.dni}`} className="link-app">
+              Ver en Gestión de Viajes
+            </Link>
+          }
+        >
+          <PassengerTripsHistory viajes={viajes} todayIso={today} lookups={lookups} backTo={`/pasajeros/${pasajero.id}`} />
         </ContentCard>
       </section>
 
@@ -230,6 +253,7 @@ export default function PassengerDetailPage() {
           <PassengerAttendanceHistory
             asistencias={asistencias}
             resumen={resumen}
+            sinRegistrar={sinRegistrar}
             viajesById={viajesById}
             lookups={lookups}
           />

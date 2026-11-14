@@ -9,13 +9,18 @@
 // mismos datos.
 
 import { addDays, parseISODate, toISODate } from "../utils/dates";
+import { normalizeAttendanceStatus, normalizeTripStatus } from "../constants/estados";
 
 /**
  * Versión de la estructura de datos.
  * v1: Etapa 1. v2: Etapa 2 (ficha ampliada del pasajero y presupuestos).
+ * v3: Etapa 3 (gestión de viajes: estados normalizados y motivo de cancelación).
+ * v4: Etapa 4 (gestión de asistencias: motivo de ausencia o justificación).
+ * v5: Etapa 5A (fichas de choferes y vehículos: disponibilidad, licencia, seguro, bajas).
+ * v6: Etapa 5B (agenda de turnos recurrentes).
  * Los datos guardados con una versión anterior se migran en data/migrations.js.
  */
-export const DATA_VERSION = 2;
+export const DATA_VERSION = 6;
 
 /** Prefijos de los identificadores de cada colección. */
 export const ID_PREFIXES = {
@@ -26,6 +31,7 @@ export const ID_PREFIXES = {
   viajes: { prefix: "VIA", digits: 5 },
   asistencias: { prefix: "ASI", digits: 5 },
   presupuestos: { prefix: "PRE", digits: 3 },
+  turnos: { prefix: "TUR", digits: 3 },
 };
 
 // ---------------------------------------------------------------------------
@@ -56,6 +62,53 @@ const VEHICULOS = [
   { id: "VEH-03", patente: "IJ-789-KL", tipo: "Minibús", modelo: "Iveco Daily", capacidad: 10, estado: "activo", vtvEn: 15, seguroEn: 8 },
   { id: "VEH-04", patente: "MN-012-OP", tipo: "Combi", modelo: "Renault Master", capacidad: 12, estado: "mantenimiento", vtvEn: 95, seguroEn: 140 },
 ];
+
+// Datos ampliados de choferes y vehículos (Etapa 5A). Aseguradoras y pólizas ficticias.
+const CHOFER_EXTRAS = {
+  "CHO-01": { categoriaLicencia: "D1", disponibilidad: "disponible" },
+  "CHO-02": { categoriaLicencia: "D1", disponibilidad: "disponible" },
+  "CHO-03": { categoriaLicencia: "D2", disponibilidad: "disponible" },
+  "CHO-04": { categoriaLicencia: "D1", disponibilidad: "disponible" },
+  "CHO-05": { categoriaLicencia: "D2", disponibilidad: "guardia", observaciones: "Cubre guardias de fin de semana." },
+};
+
+const VEHICULO_EXTRAS = {
+  "VEH-01": { aseguradora: "Seguros del Aconquija (demo)", poliza: "AQ-2026-001845" },
+  "VEH-02": { aseguradora: "Cobertura Norte (demo)", poliza: "CN-77120-04" },
+  "VEH-03": { aseguradora: "Seguros del Aconquija (demo)", poliza: "AQ-2026-002317" },
+  "VEH-04": { aseguradora: "Cobertura Norte (demo)", poliza: "CN-77345-11", observaciones: "En taller por cambio de embrague." },
+};
+
+/**
+ * Completa un chofer con los campos de la Etapa 5A respetando los valores
+ * existentes: sirve para los datos iniciales y para migrar datos guardados.
+ */
+export function withDriverDefaults(chofer) {
+  return {
+    categoriaLicencia: "",
+    disponibilidad: "disponible",
+    turno: "",
+    observaciones: "",
+    activo: true,
+    fechaBaja: null,
+    ...CHOFER_EXTRAS[chofer.id],
+    ...chofer,
+  };
+}
+
+/** Completa un vehículo con los campos de la Etapa 5A respetando los valores existentes. */
+export function withVehicleDefaults(vehiculo) {
+  return {
+    modelo: "",
+    aseguradora: "",
+    poliza: "",
+    observaciones: "",
+    activo: true,
+    fechaBaja: null,
+    ...VEHICULO_EXTRAS[vehiculo.id],
+    ...vehiculo,
+  };
+}
 
 // Recorridos habituales: cada uno combina un chofer con un vehículo.
 // Los choferes de la tarde reutilizan vehículos de la mañana.
@@ -220,6 +273,88 @@ export function withPassengerDefaults(pasajero) {
   };
 }
 
+/** Motivo para cancelaciones anteriores a la Etapa 3 que no registraron ninguno. */
+export const MOTIVO_NO_REGISTRADO = "Motivo no registrado";
+
+/**
+ * Completa un viaje con los campos de la gestión de viajes (Etapa 3).
+ * - Normaliza el estado al valor interno ("En curso" → "en_curso").
+ * - En los viajes cancelados antes de la Etapa 3 el motivo se guardaba en
+ *   `observaciones`: se traslada a `motivoCancelacion` sin perder el texto.
+ * No modifica fechas, horarios, asignaciones ni relaciones.
+ */
+export function withTripDefaults(viaje) {
+  const result = {
+    ...viaje,
+    estado: normalizeTripStatus(viaje.estado),
+    observaciones: viaje.observaciones ?? "",
+  };
+  if (result.estado === "cancelado" && !result.motivoCancelacion) {
+    result.motivoCancelacion = result.observaciones.trim() || MOTIVO_NO_REGISTRADO;
+    result.observaciones = "";
+  }
+  return result;
+}
+
+/**
+ * Completa una asistencia con los campos de la gestión de asistencias (Etapa 4).
+ * - Normaliza el estado al valor interno.
+ * - En las ausencias y justificaciones anteriores a la Etapa 4 el motivo se
+ *   guardaba en `observaciones`: se traslada a `motivo` sin perder el texto.
+ * No modifica la fecha, el pasajero ni el viaje vinculado.
+ */
+export function withAttendanceDefaults(asistencia) {
+  const result = {
+    ...asistencia,
+    estado: normalizeAttendanceStatus(asistencia.estado),
+    observaciones: asistencia.observaciones ?? "",
+  };
+  if ((result.estado === "ausente" || result.estado === "justificado") && result.motivo === undefined) {
+    result.motivo = result.observaciones.trim();
+    result.observaciones = "";
+  }
+  return result;
+}
+
+// Horario de regreso de los turnos de ida y vuelta de la semilla (datos ficticios
+// fijos de la demostración; no se calculan a partir del horario de ida).
+const HORA_REGRESO_SEMILLA = {
+  "PAS-001": "12:30",
+  "PAS-002": "13:00",
+  "PAS-004": "15:00",
+  "PAS-005": "18:00",
+  "PAS-007": "11:00",
+  "PAS-008": "13:30",
+  "PAS-011": "17:30",
+  "PAS-013": "12:30",
+  "PAS-014": "18:30",
+};
+
+/**
+ * Turnos recurrentes (Etapa 5B) a partir de la agenda habitual guardada en cada
+ * pasajero (días, hora y tipo). No modifica pasajeros ni viajes.
+ * - Ida: la hora habitual es la de ida. Vuelta: es la de regreso.
+ * - Ida y vuelta: la hora habitual es la de ida; el regreso solo se completa
+ *   para los pasajeros de la semilla y, si no se conoce, queda vacío.
+ */
+export function createSeedTurnos(pasajeros) {
+  return pasajeros
+    .filter((p) => Array.isArray(p.diasSemana) && p.diasSemana.length > 0 && p.horaHabitual)
+    .map((p, index) => ({
+      id: formatId("turnos", index + 1),
+      pasajeroId: p.id,
+      institucionId: p.institucionId ?? "",
+      dias: [...p.diasSemana].sort((a, b) => a - b),
+      tipo: p.tipoViaje ?? "ida_vuelta",
+      horaIda: p.tipoViaje === "vuelta" ? "" : p.horaHabitual,
+      horaVuelta: p.tipoViaje === "vuelta" ? p.horaHabitual : p.tipoViaje === "ida" ? "" : HORA_REGRESO_SEMILLA[p.id] ?? "",
+      observaciones: "",
+      activo: true,
+      fechaAlta: p.fechaAlta ?? null,
+      fechaBaja: null,
+    }));
+}
+
 /** Presupuestos de ejemplo relacionados con pasajeros existentes. */
 export function createSeedPresupuestos(pasajeros, referenceDate = new Date()) {
   const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
@@ -242,6 +377,9 @@ export function createSeedPresupuestos(pasajeros, referenceDate = new Date()) {
  * Crea el estado inicial completo de la demostración.
  * @param {Date} referenceDate fecha que se toma como "hoy".
  */
+/** Nota de los viajes de hoy cuando la demo se presenta un fin de semana. */
+export const OBSERVACION_EVENTUAL = "Traslado eventual de fin de semana (fuera de la agenda habitual)";
+
 export function createSeedData(referenceDate = new Date()) {
   const random = createRandom(20260621);
   const pick = (list) => list[Math.floor(random() * list.length)];
@@ -253,17 +391,21 @@ export function createSeedData(referenceDate = new Date()) {
 
   const instituciones = INSTITUCIONES.map((item) => ({ ...item }));
 
-  const choferes = CHOFERES.map(({ venceEn, ...chofer }) => ({
-    ...chofer,
-    vencimientoLicencia: inDays(venceEn),
-    activo: true,
-  }));
+  const choferes = CHOFERES.map(({ venceEn, ...chofer }) =>
+    withDriverDefaults({
+      ...chofer,
+      vencimientoLicencia: inDays(venceEn),
+      activo: true,
+    }),
+  );
 
-  const vehiculos = VEHICULOS.map(({ vtvEn, seguroEn, ...vehiculo }) => ({
-    ...vehiculo,
-    vencimientoVTV: inDays(vtvEn),
-    vencimientoSeguro: inDays(seguroEn),
-  }));
+  const vehiculos = VEHICULOS.map(({ vtvEn, seguroEn, ...vehiculo }) =>
+    withVehicleDefaults({
+      ...vehiculo,
+      vencimientoVTV: inDays(vtvEn),
+      vencimientoSeguro: inDays(seguroEn),
+    }),
+  );
 
   const pasajeros = PASAJEROS.map(({ dias, hora, tipo, recorrido, alta, baja, ...pasajero }, index) =>
     withPassengerDefaults({
@@ -294,9 +436,12 @@ export function createSeedData(referenceDate = new Date()) {
     const isWeekend = weekday === 0 || weekday === 6;
     const isToday = iso === todayIso;
     // Se trabaja de lunes a viernes. Si la demo se presenta un fin de semana,
-    // hoy se toma con la agenda de un lunes para que haya viajes del día.
+    // hoy se toma con la agenda de un lunes para que haya viajes del día. Esos
+    // viajes son traslados eventuales: no tienen turno asociado y la Agenda de
+    // Turnos no genera ocurrencias para sábados ni domingos (no están configurados).
     if (isWeekend && !isToday) continue;
     const scheduleDay = isWeekend ? 1 : weekday;
+    const eventual = isWeekend;
 
     for (const pasajero of pasajeros) {
       if (iso < pasajero.fechaAlta) continue;
@@ -308,9 +453,11 @@ export function createSeedData(referenceDate = new Date()) {
         pasajeroId: pasajero.id,
         choferId: pasajero.choferId,
         vehiculoId: pasajero.vehiculoId,
-        origen: pasajero.domicilio,
+        // Ida: domicilio → institución. Vuelta: institución → domicilio (dirección en "destino").
+        ...(pasajero.tipoViaje === "vuelta" ? { origen: "", destino: pasajero.domicilio } : { origen: pasajero.domicilio }),
         institucionId: pasajero.institucionId,
         tipo: pasajero.tipoViaje,
+        ...(eventual ? { eventual: true } : {}),
       });
     }
   }
@@ -370,16 +517,19 @@ export function createSeedData(referenceDate = new Date()) {
       }
     }
 
-    viajes.push({ id, ...draft, estado, observaciones });
+    const { eventual, ...campos } = draft;
+    viajes.push(withTripDefaults({ id, ...campos, estado, observaciones: observaciones || (eventual ? OBSERVACION_EVENTUAL : "") }));
 
     if (asistencia) {
-      asistencias.push({
-        id: formatId("asistencias", asistencias.length + 1),
-        fecha: draft.fecha,
-        pasajeroId: draft.pasajeroId,
-        viajeId: id,
-        ...asistencia,
-      });
+      asistencias.push(
+        withAttendanceDefaults({
+          id: formatId("asistencias", asistencias.length + 1),
+          fecha: draft.fecha,
+          pasajeroId: draft.pasajeroId,
+          viajeId: id,
+          ...asistencia,
+        }),
+      );
     }
   });
 
@@ -393,6 +543,7 @@ export function createSeedData(referenceDate = new Date()) {
     viajes,
     asistencias,
     presupuestos: createSeedPresupuestos(pasajeros, today),
+    turnos: createSeedTurnos(pasajeros),
     notificacionesLeidas: [],
   };
 }

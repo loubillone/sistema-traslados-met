@@ -1,0 +1,380 @@
+/* ---------- Agenda de Turnos (Etapa 5B) ---------- */
+
+/* Colores por tipo de turno (Figma): ida azul, vuelta verde, ida y vuelta violeta. */
+:root {
+  --agenda-ida-bg: #dbeafe;
+  --agenda-ida-border: #bedbff;
+  --agenda-ida-text: #155dfc;
+  --agenda-vuelta-bg: #dcfce7;
+  --agenda-vuelta-border: #b9f8cf;
+  --agenda-vuelta-text: #008236;
+  --agenda-iv-bg: #f3e8ff;
+  --agenda-iv-border: #e9d4ff;
+  --agenda-iv-text: #8200db;
+}
+
+.agenda-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 24px;
+  background: #eff6ff;
+  color: var(--color-text-strong);
+  font-size: 14px;
+}
+
+.agenda-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda-legend-note {
+  flex-basis: 100%;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+.agenda-swatch {
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.agenda-swatch--ida { border-color: var(--agenda-ida-border); background: var(--agenda-ida-bg); }
+.agenda-swatch--vuelta { border-color: var(--agenda-vuelta-border); background: var(--agenda-vuelta-bg); }
+.agenda-swatch--ida_vuelta { border-color: var(--agenda-iv-border); background: var(--agenda-iv-bg); }
+.agenda-swatch--viaje { border-color: #d1d5dc; background: var(--color-surface); }
+
+.agenda-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda-week-nav .btn-app-sm[aria-label] {
+  width: 32px;
+  padding: 0;
+}
+
+.agenda-filters .form-field {
+  margin-bottom: 8px;
+}
+
+.agenda-filters-clear {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 8px;
+}
+
+.agenda-filters-clear .btn-app {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+/* Grilla semanal */
+.agenda-grid-wrapper {
+  overflow-x: auto;
+}
+
+.agenda-grid {
+  min-width: 860px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.agenda-grid-row {
+  display: grid;
+  grid-template-columns: 76px repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.agenda-grid-row:last-child {
+  border-bottom: 0;
+}
+
+.agenda-grid-head {
+  background: #f9fafb;
+  border-bottom-width: 2px;
+}
+
+.agenda-grid-time {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f9fafb;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.agenda-grid-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.agenda-grid-day small {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.agenda-grid-day.is-today {
+  color: var(--color-accent);
+}
+
+.agenda-grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 64px;
+  padding: 6px;
+  border-left: 1px solid var(--color-border-soft);
+}
+
+.agenda-grid-cell.is-today {
+  background: #f8fbff;
+}
+
+/* Bloques */
+.agenda-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.agenda-block:hover {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.12);
+  transform: translateY(-1px);
+}
+
+.agenda-block--ida { border-color: var(--agenda-ida-border); background: var(--agenda-ida-bg); color: var(--agenda-ida-text); }
+.agenda-block--vuelta { border-color: var(--agenda-vuelta-border); background: var(--agenda-vuelta-bg); color: var(--agenda-vuelta-text); }
+.agenda-block--ida_vuelta { border-color: var(--agenda-iv-border); background: var(--agenda-iv-bg); color: var(--agenda-iv-text); }
+
+.agenda-block--viaje {
+  border-color: #d1d5dc;
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+}
+
+/* Turno habitual sin viaje concreto: borde punteado. */
+.agenda-block.no-trip {
+  border-style: dashed;
+  border-width: 1.5px;
+}
+
+.agenda-block.is-past {
+  opacity: 0.7;
+}
+
+.agenda-block-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.agenda-block-place {
+  opacity: 0.85;
+}
+
+.agenda-block-tag {
+  font-weight: 600;
+}
+
+.agenda-block-trip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.agenda-block-trip.is-programmed {
+  color: inherit;
+  font-weight: 600;
+}
+
+/* Vista adaptada para pantallas chicas: lista por día */
+.agenda-day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agenda-day-card {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.agenda-day-card.is-today {
+  border-color: var(--color-accent);
+}
+
+.agenda-day-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.agenda-today-tag {
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.agenda-day-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda-empty-week {
+  padding: 24px 0;
+  text-align: center;
+}
+
+/* Etiquetas de tipo */
+.agenda-type-tag {
+  display: inline-flex;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.agenda-type-tag--ida { border-color: var(--agenda-ida-border); background: var(--agenda-ida-bg); color: var(--agenda-ida-text); }
+.agenda-type-tag--vuelta { border-color: var(--agenda-vuelta-border); background: var(--agenda-vuelta-bg); color: var(--agenda-vuelta-text); }
+.agenda-type-tag--ida_vuelta { border-color: var(--agenda-iv-border); background: var(--agenda-iv-bg); color: var(--agenda-iv-text); }
+
+/* Formulario: días */
+.turno-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.turno-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 72px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.turno-day input {
+  accent-color: var(--color-primary);
+}
+
+.turno-day.is-selected {
+  border-color: #bedbff;
+  background: #dbeafe;
+  color: #193cb8;
+}
+
+/* Detalle: próximas ocurrencias */
+.turno-occurrences {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.turno-occurrences li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.turno-occurrences li.has-trip {
+  border-style: solid;
+  background: #f0fdf4;
+}
+
+.turno-occurrence-trip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #008236;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.turno-occurrence-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Ficha del pasajero: turnos */
+.passenger-turnos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.passenger-turnos li {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.passenger-turnos li.is-inactive {
+  background: #f9fafb;
+  opacity: 0.8;
+}
+
+.passenger-turno-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.passenger-turno-meta {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}

@@ -3,7 +3,8 @@ import Swal from "sweetalert2";
 import useData from "./useData";
 import { confirmAction, showToast } from "../utils/alerts";
 import { fullName } from "../utils/selectors";
-import { todayISO } from "../utils/dates";
+import { nowStamp, todayISO } from "../utils/dates";
+import { appendTripEvent } from "../utils/trips";
 
 const CANCEL_NOTE = "Cancelado por desactivación del pasajero";
 
@@ -14,7 +15,7 @@ const CANCEL_NOTE = "Cancelado por desactivación del pasajero";
  * para que no queden traslados pendientes de un pasajero dado de baja.
  */
 export default function usePassengerActions() {
-  const { data, updateItem, updateMany } = useData();
+  const { data, updateItem } = useData();
 
   const deactivate = useCallback(
     async (pasajero) => {
@@ -43,17 +44,21 @@ export default function usePassengerActions() {
       if (!result.isConfirmed) return false;
 
       updateItem("pasajeros", pasajero.id, { activo: false, fechaBaja: today });
-      if (pendientes.length) {
-        updateMany(
-          "viajes",
-          pendientes.map((v) => v.id),
-          { estado: "cancelado", observaciones: CANCEL_NOTE },
-        );
-      }
+      // Cada viaje conserva sus observaciones: el motivo se registra aparte y
+      // queda en su historial de cambios. Los viajes anteriores no se modifican.
+      const stamp = nowStamp();
+      pendientes.forEach((viaje) =>
+        updateItem("viajes", viaje.id, {
+          estado: "cancelado",
+          motivoCancelacion: CANCEL_NOTE,
+          fechaCancelacion: today,
+          eventos: appendTripEvent(viaje, { fecha: stamp, tipo: "cancelacion", detalle: `Viaje cancelado. Motivo: ${CANCEL_NOTE}` }),
+        }),
+      );
       showToast(`${fullName(pasajero)} fue desactivado`);
       return true;
     },
-    [data.viajes, updateItem, updateMany],
+    [data.viajes, updateItem],
   );
 
   const reactivate = useCallback(

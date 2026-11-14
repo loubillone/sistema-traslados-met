@@ -23,7 +23,7 @@ export function validateDni(value) {
 const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$/;
 const PHONE_PATTERN = /^[+\d\s()-]+$/;
 
-function validateName(value, label, required = true) {
+export function validateName(value, label, required = true) {
   const text = value.trim();
   if (!text) return required ? `Ingrese ${label}.` : null;
   if (text.length < 2) return `${label[0].toUpperCase()}${label.slice(1)} debe tener al menos 2 letras.`;
@@ -31,7 +31,7 @@ function validateName(value, label, required = true) {
   return null;
 }
 
-function validatePhone(value, required = true) {
+export function validatePhone(value, required = true) {
   const text = value.trim();
   if (!text) return required ? "Ingrese el teléfono." : null;
   const digits = text.replace(/\D/g, "");

@@ -1,0 +1,515 @@
+/* ---------- Gestión de Asistencias ---------- */
+
+.stat-card--gray .stat-card-icon {
+  background: #99a1af;
+}
+
+.attendance-metric--neutral {
+  border-color: var(--color-border);
+  background: var(--color-border-soft);
+  color: var(--color-text-strong);
+}
+
+/* Filtros de la vista lista */
+.attendance-filters {
+  margin-bottom: 4px;
+}
+
+.attendance-filters .form-field {
+  margin-bottom: 8px;
+}
+
+.attendance-filters-checks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+@media (min-width: 992px) {
+  .attendance-filters-checks {
+    padding-top: 28px;
+  }
+}
+
+.attendance-date-links {
+  display: inline-flex;
+  gap: 12px;
+}
+
+.attendance-blocked {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.attendance-note-cell {
+  min-width: 120px;
+  max-width: 260px;
+}
+
+/* La planilla tiene 10 columnas: celdas más compactas para que entren las acciones. */
+.attendance-table .app-table th,
+.attendance-table .app-table td {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.attendance-table .btn-app {
+  white-space: nowrap;
+}
+
+/* Diálogo de registro */
+.app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  overflow-y: auto;
+  background: rgba(16, 24, 40, 0.45);
+}
+
+.app-modal {
+  width: 100%;
+  max-width: 560px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-dropdown);
+}
+
+.app-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 12px;
+}
+
+.app-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.app-modal-body {
+  padding: 4px 24px 8px;
+}
+
+.app-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.attendance-trip-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.attendance-trip-summary-name {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.attendance-trip-summary-name span {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.attendance-trip-summary-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-dialog-notice {
+  margin-bottom: 16px;
+}
+
+fieldset.form-field {
+  min-width: 0;
+  margin-inline: 0;
+  padding: 0;
+  border: 0;
+}
+
+.attendance-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.attendance-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.attendance-option input {
+  accent-color: var(--color-primary);
+}
+
+.attendance-option--presente.is-selected { border-color: #7bf1a8; background: #f0fdf4; color: #016630; }
+.attendance-option--ausente.is-selected { border-color: #ffa2a2; background: #fef2f2; color: #9f0712; }
+.attendance-option--justificado.is-selected { border-color: #ffdf20; background: #fefce8; color: #894b00; }
+
+.attendance-option.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 575.98px) {
+  .attendance-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-modal-backdrop {
+    padding: 16px 8px;
+  }
+}
+
+/* Calendario */
+.attendance-calendar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.attendance-calendar-toolbar .btn-app-sm:not(.attendance-calendar-today) {
+  width: 32px;
+  padding: 0;
+}
+
+.attendance-calendar-title {
+  min-width: 170px;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.attendance-calendar-today {
+  margin-left: auto;
+}
+
+.attendance-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.attendance-calendar-weekday {
+  padding: 4px 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.attendance-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 88px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.attendance-day:hover {
+  border-color: #b3c6ff;
+}
+
+.attendance-day.is-empty {
+  background: #fafbfc;
+}
+
+.attendance-day.is-outside {
+  opacity: 0.45;
+}
+
+.attendance-day.is-today .attendance-day-number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.attendance-day.is-selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
+}
+
+.attendance-day-number {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.attendance-day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.attendance-chip {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.attendance-chip.is-success { border-color: #b9f8cf; background: #dcfce7; color: #016630; }
+.attendance-chip.is-danger { border-color: #ffc9c9; background: #ffe2e2; color: #9f0712; }
+.attendance-chip.is-warning { border-color: #fff085; background: #fef9c2; color: #894b00; }
+.attendance-chip.is-neutral { border-color: var(--color-border); background: var(--color-border-soft); color: var(--color-text-strong); }
+.attendance-chip.is-info { border-color: #bedbff; background: #eff6ff; color: #193cb8; }
+
+.attendance-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 16px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.attendance-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-legend .attendance-chip {
+  min-width: 14px;
+  height: 14px;
+  padding: 0;
+}
+
+/* En pantallas chicas cada día muestra solo puntos de color. */
+@media (max-width: 767.98px) {
+  .attendance-calendar-grid {
+    gap: 3px;
+  }
+
+  .attendance-day {
+    min-height: 56px;
+    padding: 4px;
+    gap: 3px;
+  }
+
+  .attendance-day-chips .attendance-chip {
+    min-width: 8px;
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .attendance-calendar-title {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* Planilla (CU-09) */
+.attendance-sheet-submit {
+  padding-top: 28px;
+}
+
+@media (max-width: 991.98px) {
+  .attendance-sheet-submit {
+    padding-top: 0;
+    margin-bottom: 8px;
+  }
+}
+
+.attendance-sheet-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.attendance-sheet-brand {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.attendance-sheet-title {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.attendance-sheet-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 24px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.attendance-sheet-meta dt {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.attendance-sheet-meta dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.attendance-sheet-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .attendance-sheet-totals {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Impresión: solo se imprime la planilla generada. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .sidebar,
+  .sidebar-backdrop,
+  .app-header,
+  .page-header,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-main,
+  .app-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .print-area .no-print {
+    display: none !important;
+  }
+
+  .print-area .table-responsive {
+    overflow: visible;
+  }
+
+  .print-area .app-table {
+    font-size: 11px;
+  }
+
+  .print-area .app-table th,
+  .print-area .app-table td {
+    padding: 6px 8px;
+  }
+
+  .print-area .status-badge,
+  .print-area .attendance-metric {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-area tr {
+    break-inside: avoid;
+  }
+}
+
+/* Detalle del viaje: acciones de asistencia */
+.attendance-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 16px;
+}
+
+.attendance-table .app-table th {
+  white-space: normal;
+}
+
+.attendance-table .app-table {
+  font-size: 13px;
+}
+
+.attendance-table .btn-app-sm {
+  gap: 6px;
+  padding: 0 10px;
+}

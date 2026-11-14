@@ -12,9 +12,6 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
-import { todayISO } from "../utils/dates";
-
-const plural = (n, singular, pluralText) => `${n} ${n === 1 ? singular : pluralText}`;
 
 export const NAV_ITEMS = [
   {
@@ -39,7 +36,7 @@ export const NAV_ITEMS = [
     icon: Car,
     title: "Gestión de Viajes",
     subtitle: "Administre y planifique los traslados programados",
-    resumen: (data) => plural(data.viajes.length, "viaje registrado", "viajes registrados"),
+    implemented: true,
   },
   {
     path: "/asistencias",
@@ -47,27 +44,23 @@ export const NAV_ITEMS = [
     icon: ClipboardList,
     title: "Planilla de Asistencias",
     subtitle: "Control de asistencias de pasajeros",
-    resumen: (data) => plural(data.asistencias.length, "asistencia registrada", "asistencias registradas"),
+    implemented: true,
   },
   {
     path: "/agenda",
     label: "Agenda de Turnos",
     icon: Calendar,
     title: "Agenda de Turnos",
-    subtitle: "Calendario semanal de traslados programados",
-    resumen: (data) => {
-      const today = todayISO();
-      const proximos = data.viajes.filter((v) => v.fecha >= today && v.estado === "programado").length;
-      return plural(proximos, "traslado próximo programado", "traslados próximos programados");
-    },
+    subtitle: "Organización de horarios y traslados recurrentes",
+    implemented: true,
   },
   {
     path: "/choferes",
     label: "Choferes",
     icon: UserCog,
     title: "Gestión de Choferes",
-    subtitle: "Administre el personal de conducción",
-    resumen: (data) => plural(data.choferes.filter((c) => c.activo).length, "chofer activo", "choferes activos"),
+    subtitle: "Administre el personal de conducción y su disponibilidad",
+    implemented: true,
   },
   {
     path: "/vehiculos",
@@ -75,7 +68,7 @@ export const NAV_ITEMS = [
     icon: Truck,
     title: "Gestión de Vehículos",
     subtitle: "Control de flota y documentación vehicular",
-    resumen: (data) => plural(data.vehiculos.length, "vehículo en la flota", "vehículos en la flota"),
+    implemented: true,
   },
   {
     path: "/gastos",

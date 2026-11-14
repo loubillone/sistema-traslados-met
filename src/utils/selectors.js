@@ -3,6 +3,7 @@
 // las pantallas automáticamente.
 
 import { DIAS_ALERTA_VENCIMIENTO } from "../constants/estados";
+import { DIAS_VENCIMIENTO_CRITICO } from "../constants/recursos";
 import { daysBetween, formatDate, lastMonths } from "./dates";
 
 export const fullName = (persona) => (persona ? `${persona.nombre} ${persona.apellido}` : "—");
@@ -21,7 +22,9 @@ export function getDashboardStats(data, todayIso) {
   const choferesActivos = data.choferes.filter((c) => c.activo).length;
   const choferesEnViaje = new Set(viajesHoy.filter((v) => v.estado === "en_curso").map((v) => v.choferId)).size;
 
-  const vehiculosActivos = data.vehiculos.filter((v) => v.estado === "activo").length;
+  // Vehículos de la flota: sin contar los dados de baja (Etapa 5A).
+  const flota = data.vehiculos.filter((v) => v.activo !== false);
+  const vehiculosActivos = flota.filter((v) => v.estado === "activo").length;
 
   const asistenciasHoy = data.asistencias.filter((a) => a.fecha === todayIso);
   const presentesHoy = asistenciasHoy.filter((a) => a.estado === "presente").length;
@@ -36,7 +39,7 @@ export function getDashboardStats(data, todayIso) {
     finalizadosHoy,
     choferesActivos,
     choferesEnViaje,
-    vehiculosTotal: data.vehiculos.length,
+    vehiculosTotal: flota.length,
     vehiculosActivos,
     asistenciasHoy: asistenciasHoy.length,
     presentesHoy,
@@ -89,7 +92,7 @@ export function getNotifications(data, todayIso) {
     if (dias > DIAS_ALERTA_VENCIMIENTO) return;
     notifications.push({
       id: `${id}-${fecha}`,
-      level: dias <= 15 ? "danger" : "warning",
+      level: dias < DIAS_VENCIMIENTO_CRITICO ? "danger" : "warning",
       title: dias < 0 ? vencido : proximo,
       detail: `${detalle} · ${dias < 0 ? "venció" : "vence"} el ${formatDate(fecha)}${dias >= 0 ? ` (${dias} días)` : ""}`,
       path,
@@ -106,12 +109,12 @@ export function getNotifications(data, todayIso) {
         vencido: "Licencia vencida",
         proximo: "Licencia próxima a vencer",
         detalle: fullName(chofer),
-        path: "/choferes",
+        path: `/choferes/${chofer.id}`,
       }),
     );
 
   data.vehiculos
-    .filter((v) => v.estado !== "inactivo")
+    .filter((v) => v.activo !== false)
     .forEach((vehiculo) => {
       addExpiry({
         id: `vtv-${vehiculo.id}`,
@@ -119,7 +122,7 @@ export function getNotifications(data, todayIso) {
         vencido: "VTV vencida",
         proximo: "VTV próxima a vencer",
         detalle: `${vehiculo.tipo} ${vehiculo.patente}`,
-        path: "/vehiculos",
+        path: `/vehiculos/${vehiculo.id}`,
       });
       addExpiry({
         id: `seguro-${vehiculo.id}`,
@@ -127,7 +130,7 @@ export function getNotifications(data, todayIso) {
         vencido: "Seguro vencido",
         proximo: "Seguro próximo a vencer",
         detalle: `${vehiculo.tipo} ${vehiculo.patente}`,
-        path: "/vehiculos",
+        path: `/vehiculos/${vehiculo.id}`,
       });
     });
 
@@ -140,7 +143,7 @@ export function getNotifications(data, todayIso) {
       level: "info",
       title: "Traslados pendientes hoy",
       detail: `${pendientesHoy} ${pendientesHoy === 1 ? "viaje programado" : "viajes programados"} para hoy`,
-      path: "/viajes",
+      path: `/viajes?desde=${todayIso}&hasta=${todayIso}&estado=programado`,
     });
   }
 

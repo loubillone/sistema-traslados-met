@@ -5,11 +5,12 @@ import Pagination from "../common/Pagination";
 import StatusBadge from "../common/StatusBadge";
 import { formatDate } from "../../utils/dates";
 import { paginate } from "../../utils/format";
+import { attendanceNote } from "../../utils/attendance";
 
 const PAGE_SIZE = 10;
 
 /** Historial de asistencias vinculadas a los viajes del pasajero. */
-export default function PassengerAttendanceHistory({ asistencias, resumen, viajesById, lookups }) {
+export default function PassengerAttendanceHistory({ asistencias, resumen, sinRegistrar = 0, viajesById, lookups }) {
   const [page, setPage] = useState(1);
 
   const columns = [
@@ -22,7 +23,7 @@ export default function PassengerAttendanceHistory({ asistencias, resumen, viaje
       cellClassName: "cell-muted",
     },
     { key: "estado", header: "Estado", render: (a) => <StatusBadge type="asistencia" estado={a.estado} /> },
-    { key: "observaciones", header: "Observaciones", render: (a) => a.observaciones || "", cellClassName: "cell-muted" },
+    { key: "observaciones", header: "Motivo / observaciones", render: (a) => attendanceNote(a), cellClassName: "cell-muted" },
   ];
 
   return (
@@ -52,8 +53,9 @@ export default function PassengerAttendanceHistory({ asistencias, resumen, viaje
         <Info size={16} strokeWidth={2} aria-hidden="true" />
         <span>
           Porcentaje de asistencia = presentes ÷ asistencias registradas
-          {resumen.total > 0 ? ` (${resumen.presentes} de ${resumen.total})` : ""}. Los viajes que todavía no se
-          realizaron no tienen asistencia registrada y no se incluyen en el cálculo.
+          {resumen.total > 0 ? ` (${resumen.presentes} de ${resumen.total})` : ""}. Los viajes futuros y los que todavía
+          no tienen asistencia registrada no se incluyen en el cálculo
+          {sinRegistrar > 0 ? `: hay ${sinRegistrar} ${sinRegistrar === 1 ? "viaje" : "viajes"} de hoy o anteriores sin registrar` : ""}.
         </span>
       </p>
 

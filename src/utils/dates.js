@@ -51,3 +51,21 @@ export function lastMonths(count, reference = new Date()) {
     };
   });
 }
+
+/** Hora local actual "HH:MM". */
+export function currentTime() {
+  const now = new Date();
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+/** Fecha y hora local actual "YYYY-MM-DDTHH:MM" (para el historial de cambios). */
+export function nowStamp() {
+  return `${todayISO()}T${currentTime()}`;
+}
+
+/** "YYYY-MM-DDTHH:MM" → "dd/mm/aaaa HH:MM" */
+export function formatDateTime(stamp) {
+  if (!stamp) return "";
+  const [date, time = ""] = stamp.split("T");
+  return `${formatDate(date)}${time ? ` ${time.slice(0, 5)}` : ""}`;
+}

@@ -3,6 +3,7 @@ import DataTable from "../common/DataTable";
 import StatusBadge from "../common/StatusBadge";
 import useData from "../../hooks/useData";
 import { buildIndex, fullName } from "../../utils/selectors";
+import { tripRoute } from "../../utils/trips";
 import { formatDate } from "../../utils/dates";
 
 export default function RecentTripsTable({ viajes }) {
@@ -28,7 +29,7 @@ export default function RecentTripsTable({ viajes }) {
       {
         key: "destino",
         header: "Destino",
-        render: (v) => instituciones[v.institucionId]?.nombre ?? "—",
+        render: (v) => tripRoute(v, instituciones[v.institucionId]).destino,
         cellClassName: "cell-muted",
       },
       { key: "estado", header: "Estado", render: (v) => <StatusBadge estado={v.estado} /> },
