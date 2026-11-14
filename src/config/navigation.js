@@ -23,14 +23,15 @@ export const NAV_ITEMS = [
     icon: LayoutDashboard,
     title: "Panel Principal",
     subtitle: "Bienvenido al sistema de gestión de traslados",
+    implemented: true,
   },
   {
     path: "/pasajeros",
     label: "Pasajeros",
     icon: Users,
     title: "Gestión de Pasajeros",
-    subtitle: "Administre los datos de los pasajeros y su historial",
-    resumen: (data) => plural(data.pasajeros.filter((p) => p.activo).length, "pasajero activo", "pasajeros activos"),
+    subtitle: "Administración y consulta de pasajeros registrados",
+    implemented: true,
   },
   {
     path: "/viajes",
@@ -93,4 +94,4 @@ export const NAV_ITEMS = [
 ];
 
 /** Módulos que en esta etapa se muestran como vista provisional. */
-export const PENDING_MODULES = NAV_ITEMS.filter((item) => item.path !== "/dashboard");
+export const PENDING_MODULES = NAV_ITEMS.filter((item) => !item.implemented);

@@ -8,10 +8,14 @@
 // El generador es determinístico: para una misma fecha produce siempre los
 // mismos datos.
 
-import { addDays, toISODate } from "../utils/dates";
+import { addDays, parseISODate, toISODate } from "../utils/dates";
 
-/** Cambiar este número obliga a regenerar los datos guardados en localStorage. */
-export const DATA_VERSION = 1;
+/**
+ * Versión de la estructura de datos.
+ * v1: Etapa 1. v2: Etapa 2 (ficha ampliada del pasajero y presupuestos).
+ * Los datos guardados con una versión anterior se migran en data/migrations.js.
+ */
+export const DATA_VERSION = 2;
 
 /** Prefijos de los identificadores de cada colección. */
 export const ID_PREFIXES = {
@@ -21,6 +25,7 @@ export const ID_PREFIXES = {
   vehiculos: { prefix: "VEH", digits: 2 },
   viajes: { prefix: "VIA", digits: 5 },
   asistencias: { prefix: "ASI", digits: 5 },
+  presupuestos: { prefix: "PRE", digits: 3 },
 };
 
 // ---------------------------------------------------------------------------
@@ -82,7 +87,73 @@ const PASAJEROS = [
   { id: "PAS-016", nombre: "Ramiro", apellido: "Vega", dni: "33901234", telefono: "381-701-3456", obraSocial: "Swiss Medical", institucionId: "INS-04", domicilio: "General Paz 1025", dias: [2], hora: "10:00", tipo: "ida", recorrido: "R1", alta: 9, baja: 3 },
 ];
 
-const MOTIVOS_AUSENCIA = ["No respondió llamadas", "Ausente sin aviso"];
+// Datos ampliados de la ficha (Etapa 2): contacto de emergencia, condición
+// particular y documentación simulada. docs: [categoría, nombre, tipo, días desde el alta].
+const PASAJERO_EXTRAS = {
+  "PAS-001": {
+    contacto: ["Roberto González", "Esposo", "381-556-8902"],
+    condicion: "Movilidad reducida. Utiliza bastón.",
+    docs: [
+      ["certificado", "Certificado_Unico_Discapacidad.pdf", "application/pdf", 2],
+      ["autorizacion", "Autorizacion_OSDE_traslados.pdf", "application/pdf", 5],
+    ],
+  },
+  "PAS-002": {
+    contacto: ["Claudia Pérez", "Madre", "381-567-9013"],
+    condicion: "Requiere acompañante adulto durante el traslado.",
+    docs: [["autorizacion", "Autorizacion_padres_traslado.pdf", "application/pdf", 1]],
+  },
+  "PAS-003": {
+    contacto: ["Hernán Sánchez", "Hijo", "381-578-0124"],
+    condicion: "Movilidad reducida. Utiliza andador.",
+    docs: [["certificado", "Orden_medica_PAMI.jpg", "image/jpeg", 3]],
+  },
+  "PAS-004": {
+    contacto: ["Silvia Ramírez", "Esposa", "381-589-1235"],
+    condicion: "Tratamiento de hemodiálisis. Traslado sin demoras.",
+    docs: [["certificado", "Indicacion_medica_tratamiento.pdf", "application/pdf", 4]],
+  },
+  "PAS-005": {
+    contacto: ["Gustavo Torres", "Padre", "381-590-2346"],
+    condicion: "Usuaria de silla de ruedas. Requiere vehículo con rampa.",
+    docs: [["certificado", "Certificado_Unico_Discapacidad.pdf", "application/pdf", 2]],
+  },
+  "PAS-006": { contacto: ["Mariela Herrera", "Madre", "381-601-3457"], condicion: "Prefiere viajar siempre con el mismo chofer." },
+  "PAS-007": { contacto: ["Jorge Romero", "Hijo", "381-612-4568"], condicion: "Hipoacusia. Comunicarse por mensaje de texto." },
+  "PAS-008": { contacto: ["Natalia Díaz", "Hermana", "381-623-5679"], condicion: "" },
+  "PAS-009": { contacto: ["Fernando Medina", "Padre", "381-634-6790"], condicion: "Requiere acompañante adulto." },
+  "PAS-010": { contacto: ["Liliana Castro", "Hija", "381-645-7891"], condicion: "Movilidad reducida. Necesita asistencia para subir al vehículo." },
+  "PAS-011": {
+    contacto: ["Verónica Ríos", "Madre", "381-656-8902"],
+    condicion: "Usuaria de silla de ruedas.",
+    docs: [["autorizacion", "Autorizacion_escuela_retiro.pdf", "application/pdf", 3]],
+  },
+  "PAS-012": { contacto: ["Andrea Acuña", "Madre", "381-667-9013"], condicion: "" },
+  "PAS-013": { contacto: ["Raúl Molina", "Padre", "381-678-0124"], condicion: "Epilepsia controlada. Informar cualquier novedad al contacto." },
+  "PAS-014": { contacto: ["Paola Paz", "Madre", "381-689-1235"], condicion: "Requiere acompañante adulto." },
+  "PAS-015": { contacto: ["Oscar Luna", "Esposo", "381-690-2346"], condicion: "Movilidad reducida. Utiliza andador." },
+  "PAS-016": { contacto: ["Carina Vega", "Hermana", "381-701-3457"], condicion: "" },
+};
+
+// Presupuestos de ejemplo: [días atrás, pasajero, kilómetros]. Tarifa por km según Figma.
+const TARIFA_KM = 250;
+const PRESUPUESTOS = [
+  [5, "PAS-001", 45],
+  [8, "PAS-002", 32],
+  [12, "PAS-003", 28],
+  [15, "PAS-004", 52],
+  [18, "PAS-005", 38],
+  [30, "PAS-001", 45],
+  [36, "PAS-008", 30],
+  [44, "PAS-011", 26],
+  [51, "PAS-002", 32],
+  [60, "PAS-013", 40],
+  [72, "PAS-006", 24],
+  [95, "PAS-001", 44],
+  [120, "PAS-016", 36],
+];
+
+const MOTIVOS_AUSENCIA =["No respondió llamadas", "Ausente sin aviso"];
 const MOTIVOS_JUSTIFICADOS = ["Aviso previo de la familia", "Turno médico", "Cuadro febril"];
 
 // Estado de los viajes de hoy: los choferes de la mañana ya realizaron parte
@@ -112,6 +183,62 @@ const formatId = (collection, number) => {
 };
 
 /**
+ * Completa un pasajero con los campos de la ficha ampliada.
+ * Respeta siempre los valores existentes: sirve tanto para los datos iniciales
+ * como para migrar pasajeros guardados con una versión anterior.
+ */
+export function withPassengerDefaults(pasajero) {
+  const extra = PASAJERO_EXTRAS[pasajero.id];
+  const documentos = (extra?.docs ?? []).map(([categoria, nombre, tipo, dias], index) => ({
+    id: `${pasajero.id}-DOC-${index + 1}`,
+    categoria,
+    nombre,
+    tipo,
+    fechaIncorporacion: pasajero.fechaAlta ? toISODate(addDays(parseISODate(pasajero.fechaAlta), dias)) : null,
+    simulado: true,
+  }));
+
+  return {
+    domicilio: "",
+    telefono: "",
+    obraSocial: "",
+    institucionId: "",
+    observaciones: "",
+    diasSemana: [],
+    horaHabitual: "",
+    tipoViaje: "ida_vuelta",
+    choferId: null,
+    vehiculoId: null,
+    fechaBaja: null,
+    activo: true,
+    contactoEmergencia: extra
+      ? { nombre: extra.contacto[0], vinculo: extra.contacto[1], telefono: extra.contacto[2] }
+      : { nombre: "", vinculo: "", telefono: "" },
+    condicion: extra?.condicion ?? "",
+    documentos,
+    ...pasajero,
+  };
+}
+
+/** Presupuestos de ejemplo relacionados con pasajeros existentes. */
+export function createSeedPresupuestos(pasajeros, referenceDate = new Date()) {
+  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+  const byId = Object.fromEntries(pasajeros.map((p) => [p.id, p]));
+
+  return PRESUPUESTOS.filter(([, pasajeroId]) => byId[pasajeroId])
+    .sort((a, b) => b[0] - a[0])
+    .map(([diasAtras, pasajeroId, kilometros], index) => ({
+      id: formatId("presupuestos", index + 1),
+      fecha: toISODate(addDays(today, -diasAtras)),
+      pasajeroId,
+      institucionId: byId[pasajeroId].institucionId,
+      kilometros,
+      tarifaKm: TARIFA_KM,
+      total: kilometros * TARIFA_KM,
+    }));
+}
+
+/**
  * Crea el estado inicial completo de la demostración.
  * @param {Date} referenceDate fecha que se toma como "hoy".
  */
@@ -138,18 +265,20 @@ export function createSeedData(referenceDate = new Date()) {
     vencimientoSeguro: inDays(seguroEn),
   }));
 
-  const pasajeros = PASAJEROS.map(({ dias, hora, tipo, recorrido, alta, baja, ...pasajero }, index) => ({
-    ...pasajero,
-    diasSemana: dias,
-    horaHabitual: hora,
-    tipoViaje: tipo,
-    choferId: RECORRIDOS[recorrido].choferId,
-    vehiculoId: RECORRIDOS[recorrido].vehiculoId,
-    fechaAlta: monthsAgo(alta, 3 + ((index * 5) % 20)),
-    fechaBaja: baja ? monthsAgo(baja, 10) : null,
-    activo: !baja,
-    observaciones: "",
-  }));
+  const pasajeros = PASAJEROS.map(({ dias, hora, tipo, recorrido, alta, baja, ...pasajero }, index) =>
+    withPassengerDefaults({
+      ...pasajero,
+      diasSemana: dias,
+      horaHabitual: hora,
+      tipoViaje: tipo,
+      choferId: RECORRIDOS[recorrido].choferId,
+      vehiculoId: RECORRIDOS[recorrido].vehiculoId,
+      fechaAlta: monthsAgo(alta, 3 + ((index * 5) % 20)),
+      fechaBaja: baja ? monthsAgo(baja, 10) : null,
+      activo: !baja,
+      observaciones: "",
+    }),
+  );
 
   // 1) Viajes según la agenda habitual de cada pasajero.
   //    Rango: desde el inicio de hace 5 meses hasta fin de mes (mínimo 14 días adelante).
@@ -263,6 +392,7 @@ export function createSeedData(referenceDate = new Date()) {
     vehiculos,
     viajes,
     asistencias,
+    presupuestos: createSeedPresupuestos(pasajeros, today),
     notificacionesLeidas: [],
   };
 }

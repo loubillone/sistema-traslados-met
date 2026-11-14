@@ -26,8 +26,12 @@ export function searchAll(data, term) {
         .map((p) => ({
           id: p.id,
           label: fullName(p),
-          detail: `DNI ${p.dni} · ${institucionNombre[p.institucionId] ?? ""}`,
-          path: "/pasajeros",
+          detail: `DNI ${p.dni}${p.activo ? "" : " · Inactivo"}${
+            institucionNombre[p.institucionId] ? ` · ${institucionNombre[p.institucionId]}` : ""
+          }`,
+          // Abre directamente la ficha del pasajero.
+          path: `/pasajeros/${p.id}`,
+          direct: true,
         })),
     },
     {

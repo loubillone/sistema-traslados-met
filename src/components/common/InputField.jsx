@@ -1,6 +1,6 @@
-/** Campo de formulario con etiqueta, ícono opcional y mensaje de error. */
-export default function InputField({ id, label, icon: Icon, error, className = "", ...inputProps }) {
-  const errorId = error ? `${id}-error` : undefined;
+/** Campo de formulario con etiqueta, ícono opcional, ayuda y mensaje de error. */
+export default function InputField({ id, label, icon: Icon, error, hint, className = "", ...inputProps }) {
+  const describedBy = [error && `${id}-error`, hint && `${id}-hint`].filter(Boolean).join(" ") || undefined;
   return (
     <div className={`form-field ${className}`.trim()}>
       {label && (
@@ -14,12 +14,17 @@ export default function InputField({ id, label, icon: Icon, error, className = "
           id={id}
           className={`input-app${Icon ? " has-icon" : ""}${error ? " is-invalid" : ""}`}
           aria-invalid={Boolean(error)}
-          aria-describedby={errorId}
+          aria-describedby={describedBy}
           {...inputProps}
         />
       </div>
+      {hint && !error && (
+        <div id={`${id}-hint`} className="field-hint">
+          {hint}
+        </div>
+      )}
       {error && (
-        <div id={errorId} className="field-error">
+        <div id={`${id}-error`} className="field-error">
           {error}
         </div>
       )}

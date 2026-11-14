@@ -17,7 +17,7 @@ export default function GlobalSearch() {
   useClickOutside(containerRef, close, open);
 
   const goTo = (item) => {
-    navigate(`${item.path}?q=${encodeURIComponent(item.label)}`);
+    navigate(item.direct ? item.path : `${item.path}?q=${encodeURIComponent(item.label)}`);
     setTerm("");
     setOpen(false);
   };

@@ -1,0 +1,151 @@
+/* ---------- Campos de formulario (reutilizables) ---------- */
+.form-field {
+  margin-bottom: 20px;
+}
+
+.form-label-app {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input-app {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-app.has-icon {
+  padding-left: 40px;
+}
+
+.input-app::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input-app:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
+}
+
+.input-app.is-invalid {
+  border-color: var(--stat-red);
+  background: #fff5f5;
+}
+
+.input-app.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(251, 44, 54, 0.15);
+}
+
+.field-error {
+  margin-top: 6px;
+  color: #c10007;
+  font-size: 12px;
+}
+
+.checkbox-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-strong);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkbox-app input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.input-app:disabled {
+  background: var(--color-border-soft);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.select-app {
+  padding-right: 36px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a7282' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.textarea-app {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.field-hint {
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.field-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-footer:empty {
+  display: none;
+}
+
+.field-counter {
+  margin-top: 6px;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-required-note {
+  margin-right: auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 575.98px) {
+  .form-actions .btn-app {
+    flex: 1 1 auto;
+  }
+}

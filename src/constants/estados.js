@@ -20,6 +20,11 @@ export const ESTADOS_VEHICULO = {
   inactivo: { label: "Inactivo", variant: "neutral" },
 };
 
+export const ESTADOS_PASAJERO = {
+  activo: { label: "Activo", variant: "success" },
+  inactivo: { label: "Inactivo", variant: "neutral" },
+};
+
 export const TIPOS_VIAJE = {
   ida: "Ida",
   vuelta: "Vuelta",

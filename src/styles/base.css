@@ -112,3 +112,40 @@ button {
   font-family: var(--font-sans);
   border-radius: var(--radius-xl);
 }
+
+.btn-app-lg {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+.btn-app-danger-outline {
+  background: var(--color-surface);
+  border-color: #ffc9c9;
+  color: var(--color-danger);
+}
+
+.btn-app-danger-outline:hover:not(:disabled) {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.icon-btn--danger:hover {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-accent);
+}
