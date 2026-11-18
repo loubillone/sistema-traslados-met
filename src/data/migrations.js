@@ -3,10 +3,12 @@
 // que incorpora cada etapa, respetando los valores ya existentes.
 
 import {
+  createSeedGastos,
   createSeedPresupuestos,
   createSeedTurnos,
   DATA_VERSION,
   withAttendanceDefaults,
+  withBudgetDefaults,
   withDriverDefaults,
   withPassengerDefaults,
   withTripDefaults,
@@ -57,6 +59,23 @@ const MIGRATIONS = {
     ...state,
     turnos: Array.isArray(state.turnos) ? state.turnos : createSeedTurnos(state.pasajeros),
     version: 6,
+  }),
+  // v6 (Etapa 5B) → v7 (Etapa 5C.1): colección de gastos por viaje. Los gastos de
+  // ejemplo se asocian a viajes finalizados ya guardados, que solo se leen: no se
+  // modifican viajes, pasajeros, asistencias ni turnos.
+  6: (state) => ({
+    ...state,
+    gastos: Array.isArray(state.gastos) ? state.gastos : createSeedGastos(state.viajes),
+    version: 7,
+  }),
+  // v7 (Etapa 5C.1) → v8 (Etapa 5C.2): gestión de presupuestos. Se conservan los
+  // presupuestos existentes (no se regeneran ni se duplican) y solo se agrega el
+  // campo de observaciones; el total se corrige únicamente si no coincide con
+  // km × tarifa. No se modifican pasajeros, viajes ni otros módulos.
+  7: (state) => ({
+    ...state,
+    presupuestos: (Array.isArray(state.presupuestos) ? state.presupuestos : []).map(withBudgetDefaults),
+    version: 8,
   }),
 };
 

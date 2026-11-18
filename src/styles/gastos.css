@@ -1,0 +1,253 @@
+/* ---------- Gestión de Gastos (Etapa 5C.1) ---------- */
+
+/* Filtros sobre el tablero */
+.expense-filters {
+  margin-bottom: 24px;
+}
+
+/* Total mensual (Figma: "Total Mensual") */
+.expense-total-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.expense-total-title {
+  margin: 8px 0 12px;
+  color: var(--color-text-strong);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.expense-total-value {
+  color: var(--color-primary);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.expense-total-period {
+  margin-top: 6px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.expense-total-meta {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* Gráfico */
+.expense-chart {
+  height: 300px;
+}
+
+.expense-chart-empty {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Tarjetas por categoría */
+.expense-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 1200px) {
+  .expense-category-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .expense-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+.expense-category-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid rgba(16, 24, 40, 0.04);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.expense-category-card:hover {
+  border-color: var(--color-border);
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.expense-category-card:focus-visible {
+  outline: 3px solid var(--color-accent-ring);
+  outline-offset: 2px;
+}
+
+.expense-category-card.is-active {
+  border-color: var(--category-color);
+  box-shadow: 0 0 0 1px var(--category-color), var(--shadow-card);
+}
+
+.expense-category-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--category-color);
+  color: #fff;
+}
+
+.expense-category-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.expense-category-name {
+  color: var(--color-text-strong);
+  font-size: 14px;
+}
+
+.expense-category-total {
+  font-size: 18px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.expense-category-count {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 575.98px) {
+  .expense-category-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .expense-category-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .expense-category-total {
+    font-size: 16px;
+  }
+}
+
+/* Tabla */
+.expense-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-table .expense-description {
+  min-width: 180px;
+}
+
+.expense-current-tag {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #dbeafe;
+  color: #193cb8;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.app-table tbody tr.is-highlighted td {
+  background: #f5f9ff;
+}
+
+/* Formulario: resumen del viaje elegido */
+.expense-trip-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border: 1px solid #bedbff;
+  border-radius: var(--radius);
+  background: #eff6ff;
+}
+
+.expense-trip-summary-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #193cb8;
+}
+
+.expense-trip-summary-grid {
+  display: grid;
+  flex: 1 1 260px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px 20px;
+  margin: 0;
+}
+
+.expense-trip-summary-grid dt {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.expense-trip-summary-grid dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.expense-trip-summary-wide {
+  grid-column: 1 / -1;
+}
+
+.expense-trip-summary-vehicle dd {
+  color: #193cb8;
+  font-weight: 600;
+}
+
+.expense-trip-summary-note {
+  display: flex;
+  flex-basis: 100%;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #193cb8;
+  font-size: 13px;
+}
+
+/* Detalle */
+.expense-detail-amount {
+  color: var(--color-primary);
+  font-size: 20px;
+}

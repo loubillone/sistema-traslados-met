@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
@@ -36,7 +36,17 @@ export default function Layout() {
       <div className="app-main">
         <Header onToggleSidebar={toggleSidebar} menuExpanded={mobileOpen || !collapsed} />
         <main className="app-content">
-          <Outlet />
+          {/* Las pantallas se cargan bajo demanda (React.lazy en App.jsx). */}
+          <Suspense
+            fallback={
+              <div className="page-loader" role="status">
+                <span className="page-loader-spinner" aria-hidden="true" />
+                Cargando…
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

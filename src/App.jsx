@@ -1,27 +1,36 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
 import PublicOnlyRoute from "./components/routing/PublicOnlyRoute";
 import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import ModulePlaceholder from "./pages/ModulePlaceholder";
-import PassengersPage from "./pages/pasajeros/PassengersPage";
-import PassengerDetailPage from "./pages/pasajeros/PassengerDetailPage";
-import PassengerFormPage from "./pages/pasajeros/PassengerFormPage";
-import TripsPage from "./pages/viajes/TripsPage";
-import TripDetailPage from "./pages/viajes/TripDetailPage";
-import TripFormPage from "./pages/viajes/TripFormPage";
-import AttendancePage from "./pages/asistencias/AttendancePage";
-import DriversPage from "./pages/choferes/DriversPage";
-import DriverDetailPage from "./pages/choferes/DriverDetailPage";
-import DriverFormPage from "./pages/choferes/DriverFormPage";
-import VehiclesPage from "./pages/vehiculos/VehiclesPage";
-import VehicleDetailPage from "./pages/vehiculos/VehicleDetailPage";
-import VehicleFormPage from "./pages/vehiculos/VehicleFormPage";
-import AgendaPage from "./pages/agenda/AgendaPage";
-import TurnoDetailPage from "./pages/agenda/TurnoDetailPage";
-import TurnoFormPage from "./pages/agenda/TurnoFormPage";
-import { PENDING_MODULES } from "./config/navigation";
+
+// Carga diferida por pantalla (Etapa 6): cada módulo se descarga al abrirlo por
+// primera vez, lo que reduce el archivo inicial. El indicador de carga está en
+// Layout (Suspense alrededor del contenido), así el menú no desaparece.
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const PassengersPage = lazy(() => import("./pages/pasajeros/PassengersPage"));
+const PassengerDetailPage = lazy(() => import("./pages/pasajeros/PassengerDetailPage"));
+const PassengerFormPage = lazy(() => import("./pages/pasajeros/PassengerFormPage"));
+const TripsPage = lazy(() => import("./pages/viajes/TripsPage"));
+const TripDetailPage = lazy(() => import("./pages/viajes/TripDetailPage"));
+const TripFormPage = lazy(() => import("./pages/viajes/TripFormPage"));
+const AttendancePage = lazy(() => import("./pages/asistencias/AttendancePage"));
+const DriversPage = lazy(() => import("./pages/choferes/DriversPage"));
+const DriverDetailPage = lazy(() => import("./pages/choferes/DriverDetailPage"));
+const DriverFormPage = lazy(() => import("./pages/choferes/DriverFormPage"));
+const VehiclesPage = lazy(() => import("./pages/vehiculos/VehiclesPage"));
+const VehicleDetailPage = lazy(() => import("./pages/vehiculos/VehicleDetailPage"));
+const VehicleFormPage = lazy(() => import("./pages/vehiculos/VehicleFormPage"));
+const AgendaPage = lazy(() => import("./pages/agenda/AgendaPage"));
+const TurnoDetailPage = lazy(() => import("./pages/agenda/TurnoDetailPage"));
+const TurnoFormPage = lazy(() => import("./pages/agenda/TurnoFormPage"));
+const ExpensesPage = lazy(() => import("./pages/gastos/ExpensesPage"));
+const ExpenseDetailPage = lazy(() => import("./pages/gastos/ExpenseDetailPage"));
+const ExpenseFormPage = lazy(() => import("./pages/gastos/ExpenseFormPage"));
+const BudgetsPage = lazy(() => import("./pages/presupuestos/BudgetsPage"));
+const BudgetDetailPage = lazy(() => import("./pages/presupuestos/BudgetDetailPage"));
+const BudgetFormPage = lazy(() => import("./pages/presupuestos/BudgetFormPage"));
 
 const App = () => {
   return (
@@ -64,9 +73,14 @@ const App = () => {
         <Route path="/agenda/nuevo" element={<TurnoFormPage key="nuevo" />} />
         <Route path="/agenda/:id" element={<TurnoDetailPage />} />
         <Route path="/agenda/:id/editar" element={<TurnoFormPage key="editar" />} />
-        {PENDING_MODULES.map((module) => (
-          <Route key={module.path} path={module.path} element={<ModulePlaceholder key={module.path} module={module} />} />
-        ))}
+        <Route path="/gastos" element={<ExpensesPage />} />
+        <Route path="/gastos/nuevo" element={<ExpenseFormPage key="nuevo" />} />
+        <Route path="/gastos/:id" element={<ExpenseDetailPage />} />
+        <Route path="/gastos/:id/editar" element={<ExpenseFormPage key="editar" />} />
+        <Route path="/presupuestos" element={<BudgetsPage />} />
+        <Route path="/presupuestos/nuevo" element={<BudgetFormPage key="nuevo" />} />
+        <Route path="/presupuestos/:id" element={<BudgetDetailPage />} />
+        <Route path="/presupuestos/:id/editar" element={<BudgetFormPage key="editar" />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

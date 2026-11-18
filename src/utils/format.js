@@ -1,6 +1,8 @@
-/** $11.250 */
-export function formatCurrency(value) {
-  return `$${Number(value ?? 0).toLocaleString("es-AR", { maximumFractionDigits: 0 })}`;
+/** Importe con centavos solo si los tiene: $15.500 · $15.500,50 */
+export function formatAmount(value) {
+  const number = Number(value ?? 0);
+  const decimals = Number.isInteger(number) ? 0 : 2;
+  return `$${number.toLocaleString("es-AR", { minimumFractionDigits: decimals, maximumFractionDigits: 2 })}`;
 }
 
 /** 12.345.678 */

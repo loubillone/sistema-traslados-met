@@ -1,0 +1,286 @@
+/* ---------- Gestión de Presupuestos (Etapa 5C.2) ---------- */
+
+.budget-table th {
+  white-space: nowrap;
+}
+
+.budget-passenger-link {
+  font-weight: 500;
+}
+
+/* Formulario */
+.budget-passenger-fixed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-border-soft);
+  color: var(--color-text-strong);
+  font-size: 14px;
+}
+
+.budget-calc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 20px 16px;
+  border: 1px solid #bedbff;
+  border-radius: var(--radius-lg);
+  background: #eff6ff;
+  text-align: center;
+}
+
+.budget-calc-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.budget-calc-formula {
+  color: #193cb8;
+  font-size: 14px;
+}
+
+.budget-calc-label {
+  margin-top: 12px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.budget-calc-total {
+  color: var(--color-primary);
+  font-size: 32px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.budget-calc-hint {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+/* Vista presentable del presupuesto */
+.budget-document {
+  padding: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+}
+
+.budget-document-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.budget-document-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.budget-document-logo {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.budget-document-company {
+  color: var(--color-primary);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.budget-document-meta {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.budget-document-meta span {
+  color: var(--color-text-secondary);
+}
+
+.budget-document-title {
+  margin: 24px 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.budget-document-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px 24px;
+  margin: 0 0 24px;
+}
+
+.budget-document-grid dt {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-document-grid dd {
+  margin: 2px 0 0;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.budget-document-wide {
+  grid-column: 1 / -1;
+}
+
+.budget-document-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.budget-document-table th,
+.budget-document-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.budget-document-table th {
+  background: var(--color-bg);
+  color: var(--color-text-strong);
+  font-weight: 600;
+}
+
+.budget-document-table tfoot td {
+  border-bottom: 0;
+  border-top: 2px solid var(--color-text);
+  font-weight: 600;
+}
+
+.budget-document-total {
+  color: var(--color-primary);
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.budget-document-notes {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.budget-document-notes-label {
+  margin-bottom: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-document-notes p {
+  margin: 0;
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+.budget-document-footer {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.budget-document-footer p {
+  margin: 0 0 4px;
+}
+
+.budget-document-demo {
+  font-style: italic;
+}
+
+@media (max-width: 575.98px) {
+  .budget-document {
+    padding: 18px 14px;
+  }
+
+  .budget-document-company {
+    font-size: 18px;
+  }
+
+  .budget-document-meta {
+    text-align: left;
+  }
+
+  .budget-document-table {
+    font-size: 13px;
+  }
+
+  .budget-document-table th,
+  .budget-document-table td {
+    padding: 8px 4px;
+  }
+
+  .budget-document-total {
+    font-size: 16px;
+  }
+
+  .budget-calc-total {
+    font-size: 28px;
+  }
+}
+
+/*
+ * Impresión: se reutilizan las reglas globales (.print-area / .no-print,
+ * definidas en asistencias.css) y se ajusta el documento a una hoja A4.
+ */
+@media print {
+  .budget-document {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 12pt;
+  }
+
+  .budget-document-logo,
+  .budget-document-table th,
+  .budget-document-notes {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .budget-document-header {
+    border-bottom-color: #1c398e;
+  }
+
+  .budget-document-meta {
+    text-align: right;
+  }
+
+  .budget-document-footer {
+    margin-top: 40px;
+  }
+}

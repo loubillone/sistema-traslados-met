@@ -7,6 +7,7 @@ import DetailItem from "../../components/common/DetailItem";
 import EmptyState from "../../components/common/EmptyState";
 import TripActions from "../../components/viajes/TripActions";
 import TripTimeline from "../../components/viajes/TripTimeline";
+import TripExpenses from "../../components/gastos/TripExpenses";
 import useData from "../../hooks/useData";
 import useTripActions from "../../hooks/useTripActions";
 import useAttendanceDialog from "../../hooks/useAttendanceDialog";
@@ -37,6 +38,8 @@ export default function TripDetailPage() {
     ["/asistencias", "Volver a Asistencias"],
     ["/choferes", "Volver a la ficha del chofer"],
     ["/vehiculos", "Volver a la ficha del vehículo"],
+    ["/gastos/", "Volver al gasto"],
+    ["/gastos", "Volver a Gastos"],
   ];
   const backLabel = BACK_LABELS.find(([prefix]) => backTo.startsWith(prefix))?.[1] ?? "Volver a Viajes";
 
@@ -282,6 +285,11 @@ export default function TripDetailPage() {
             <TripTimeline eventos={viaje.eventos} />
           </ContentCard>
         </div>
+      </div>
+
+      {/* Etapa 5C.1: gastos del viaje, leídos de la colección única de gastos. */}
+      <div className="mt-4">
+        <TripExpenses viaje={viaje} gastos={data.gastos} />
       </div>
       {attendanceDialog.dialog}
     </>

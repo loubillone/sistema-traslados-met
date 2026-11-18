@@ -10,6 +10,7 @@
 
 import { addDays, parseISODate, toISODate } from "../utils/dates";
 import { normalizeAttendanceStatus, normalizeTripStatus } from "../constants/estados";
+import { calcularTotal } from "../utils/budgets";
 
 /**
  * Versión de la estructura de datos.
@@ -18,9 +19,11 @@ import { normalizeAttendanceStatus, normalizeTripStatus } from "../constants/est
  * v4: Etapa 4 (gestión de asistencias: motivo de ausencia o justificación).
  * v5: Etapa 5A (fichas de choferes y vehículos: disponibilidad, licencia, seguro, bajas).
  * v6: Etapa 5B (agenda de turnos recurrentes).
+ * v7: Etapa 5C.1 (gestión de gastos por viaje).
+ * v8: Etapa 5C.2 (gestión de presupuestos: observaciones y total verificado).
  * Los datos guardados con una versión anterior se migran en data/migrations.js.
  */
-export const DATA_VERSION = 6;
+export const DATA_VERSION = 8;
 
 /** Prefijos de los identificadores de cada colección. */
 export const ID_PREFIXES = {
@@ -32,6 +35,7 @@ export const ID_PREFIXES = {
   asistencias: { prefix: "ASI", digits: 5 },
   presupuestos: { prefix: "PRE", digits: 3 },
   turnos: { prefix: "TUR", digits: 3 },
+  gastos: { prefix: "GAS", digits: 4 },
 };
 
 // ---------------------------------------------------------------------------
@@ -355,6 +359,23 @@ export function createSeedTurnos(pasajeros) {
     }));
 }
 
+/**
+ * Completa un presupuesto con los campos de la Etapa 5C.2 respetando los
+ * valores existentes (identificador, fecha, pasajero, km, tarifa e importe).
+ * El total solo se recalcula si falta o no coincide con km × tarifa, es decir,
+ * si hay un error de cálculo; los presupuestos de la semilla ya coinciden.
+ */
+export function withBudgetDefaults(presupuesto) {
+  const result = { institucionId: "", observaciones: "", ...presupuesto };
+  const kilometros = Number(result.kilometros);
+  const tarifaKm = Number(result.tarifaKm);
+  if (Number.isFinite(kilometros) && Number.isFinite(tarifaKm)) {
+    const esperado = calcularTotal(kilometros, tarifaKm);
+    if (result.total !== esperado) result.total = esperado;
+  }
+  return result;
+}
+
 /** Presupuestos de ejemplo relacionados con pasajeros existentes. */
 export function createSeedPresupuestos(pasajeros, referenceDate = new Date()) {
   const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
@@ -362,15 +383,102 @@ export function createSeedPresupuestos(pasajeros, referenceDate = new Date()) {
 
   return PRESUPUESTOS.filter(([, pasajeroId]) => byId[pasajeroId])
     .sort((a, b) => b[0] - a[0])
-    .map(([diasAtras, pasajeroId, kilometros], index) => ({
-      id: formatId("presupuestos", index + 1),
-      fecha: toISODate(addDays(today, -diasAtras)),
-      pasajeroId,
-      institucionId: byId[pasajeroId].institucionId,
-      kilometros,
-      tarifaKm: TARIFA_KM,
-      total: kilometros * TARIFA_KM,
-    }));
+    .map(([diasAtras, pasajeroId, kilometros], index) =>
+      withBudgetDefaults({
+        id: formatId("presupuestos", index + 1),
+        fecha: toISODate(addDays(today, -diasAtras)),
+        pasajeroId,
+        institucionId: byId[pasajeroId].institucionId,
+        kilometros,
+        tarifaKm: TARIFA_KM,
+        total: kilometros * TARIFA_KM,
+      }),
+    );
+}
+
+// Gastos de ejemplo (Etapa 5C.1). Importes FICTICIOS en pesos argentinos, solo
+// para la demostración: no representan tarifas reales ni actuales.
+// [mínimo, máximo, redondeo] de cada categoría.
+const RANGOS_GASTO = {
+  combustible: [14000, 28000, 100],
+  mantenimiento: [22000, 68000, 500],
+  peajes: [900, 2400, 50],
+  limpieza: [4500, 7500, 100],
+  extras: [2500, 12000, 100],
+};
+
+const DESCRIPCIONES_GASTO = {
+  combustible: ["Carga de combustible", "Carga de gasoil", "Carga completa de tanque"],
+  mantenimiento: [
+    "Cambio de aceite y filtros",
+    "Rotación y balanceo",
+    "Reemplazo de pastillas de freno",
+    "Revisión de rampa de acceso",
+    "Cambio de lámparas y fusibles",
+  ],
+  peajes: ["Peaje acceso norte", "Peaje autopista (ida y vuelta)", "Peaje ruta provincial"],
+  limpieza: ["Lavado completo interior/exterior", "Desinfección de cabina", "Lavado de tapizados"],
+  extras: ["Estacionamiento en institución", "Reposición de botiquín", "Insumos descartables", "Cochera nocturna"],
+};
+
+/** Meses con gastos de ejemplo, contando el actual. */
+const MESES_CON_GASTOS = 6;
+
+/**
+ * Gastos de ejemplo asociados a viajes FINALIZADOS existentes, para la semilla y
+ * para migrar datos guardados. Solo lee los viajes: nunca los modifica.
+ * Distribuye los gastos por vehículo y mes; algunos viajes reciben más de un
+ * gasto (combustible y peaje del mismo recorrido). Determinístico.
+ */
+export function createSeedGastos(viajes, referenceDate = new Date()) {
+  const random = createRandom(20261118);
+  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+  const todayIso = toISODate(today);
+  const startIso = toISODate(new Date(today.getFullYear(), today.getMonth() - (MESES_CON_GASTOS - 1), 1));
+
+  const groups = new Map();
+  viajes
+    .filter((v) => v.estado === "finalizado" && v.vehiculoId && v.fecha >= startIso && v.fecha <= todayIso)
+    .sort((a, b) => `${a.fecha} ${a.hora} ${a.id}`.localeCompare(`${b.fecha} ${b.hora} ${b.id}`))
+    .forEach((viaje) => {
+      const key = `${viaje.fecha.slice(0, 7)}|${viaje.vehiculoId}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(viaje);
+    });
+
+  const amount = (categoria) => {
+    const [min, max, step] = RANGOS_GASTO[categoria];
+    return Math.round((min + random() * (max - min)) / step) * step;
+  };
+  const describe = (categoria) => {
+    const list = DESCRIPCIONES_GASTO[categoria];
+    return list[Math.floor(random() * list.length)];
+  };
+
+  const drafts = [];
+  const add = (viaje, categoria) =>
+    drafts.push({ viajeId: viaje.id, fecha: viaje.fecha, hora: viaje.hora, categoria, monto: amount(categoria), descripcion: describe(categoria) });
+
+  [...groups.keys()].sort().forEach((key) => {
+    const list = groups.get(key);
+    const pick = () => list[Math.floor(random() * list.length)];
+    const cargas = list.length > 30 ? 3 : Math.min(2, list.length);
+    for (let i = 0; i < cargas; i += 1) {
+      const viaje = pick();
+      add(viaje, "combustible");
+      // Un mismo viaje puede tener varios gastos asociados.
+      if (random() < 0.5) add(viaje, "peajes");
+    }
+    if (list.length >= 4) {
+      add(pick(), "limpieza");
+      if (random() < 0.6) add(pick(), "mantenimiento");
+      if (random() < 0.9) add(pick(), "extras");
+    }
+  });
+
+  return drafts
+    .sort((a, b) => `${a.fecha} ${a.hora}`.localeCompare(`${b.fecha} ${b.hora}`))
+    .map(({ hora: _hora, ...gasto }, index) => ({ id: formatId("gastos", index + 1), ...gasto }));
 }
 
 /**
@@ -544,6 +652,7 @@ export function createSeedData(referenceDate = new Date()) {
     asistencias,
     presupuestos: createSeedPresupuestos(pasajeros, today),
     turnos: createSeedTurnos(pasajeros),
+    gastos: createSeedGastos(viajes, today),
     notificacionesLeidas: [],
   };
 }

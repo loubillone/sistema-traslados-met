@@ -15,7 +15,8 @@ import PassengerDocuments from "../../components/pasajeros/PassengerDocuments";
 import useData from "../../hooks/useData";
 import usePassengerActions from "../../hooks/usePassengerActions";
 import { formatDate, todayISO } from "../../utils/dates";
-import { formatCurrency } from "../../utils/format";
+import { formatAmount } from "../../utils/format";
+import { sumarImportes } from "../../utils/budgets";
 import { buildIndex, fullName } from "../../utils/selectors";
 import { summarizeAttendance } from "../../utils/passengers";
 import { getAttendanceStatus, indexAttendanceByTrip } from "../../utils/attendance";
@@ -50,7 +51,7 @@ export default function PassengerDetailPage() {
     [data.asistencias, id],
   );
   const presupuestos = useMemo(
-    () => (data.presupuestos ?? []).filter((p) => p.pasajeroId === id).sort((a, b) => b.fecha.localeCompare(a.fecha)),
+    () => (data.presupuestos ?? []).filter((p) => p.pasajeroId === id).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id)),
     [data.presupuestos, id],
   );
   const resumen = useMemo(() => summarizeAttendance(asistencias), [asistencias]);
@@ -86,7 +87,7 @@ export default function PassengerDetailPage() {
   const realizados = viajes.filter((v) => v.estado === "finalizado").length;
   const programados = viajes.filter((v) => v.fecha >= today && (v.estado === "programado" || v.estado === "en_curso"));
   const proximoViaje = [...programados].sort((a, b) => `${a.fecha} ${a.hora}`.localeCompare(`${b.fecha} ${b.hora}`))[0];
-  const totalPresupuestado = presupuestos.reduce((sum, p) => sum + p.total, 0);
+  const totalPresupuestado = sumarImportes(presupuestos, "total");
   const contacto = pasajero.contactoEmergencia ?? {};
 
   return (
@@ -173,7 +174,7 @@ export default function PassengerDetailPage() {
             color="yellow"
             value={presupuestos.length}
             label="Presupuestos"
-            detail={presupuestos.length ? `Total ${formatCurrency(totalPresupuestado)}` : "Sin presupuestos"}
+            detail={presupuestos.length ? `Total presupuestado ${formatAmount(totalPresupuestado)}` : "Sin presupuestos"}
           />
         </div>
       </div>
@@ -261,7 +262,21 @@ export default function PassengerDetailPage() {
       </section>
 
       <section id="presupuestos" className="detail-section">
-        <ContentCard title="Presupuestos">
+        <ContentCard
+          title="Presupuestos"
+          actions={
+            pasajero.activo && (
+              <Link
+                to={`/presupuestos/nuevo?pasajero=${pasajero.id}`}
+                state={{ from: `/pasajeros/${pasajero.id}#presupuestos` }}
+                className="btn-app btn-app-primary"
+              >
+                <Plus size={16} strokeWidth={2} aria-hidden="true" />
+                Nuevo Presupuesto
+              </Link>
+            )
+          }
+        >
           <PassengerBudgets presupuestos={presupuestos} instituciones={lookups.instituciones} />
         </ContentCard>
       </section>
