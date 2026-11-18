@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variables de entorno e información sensible
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Archivos temporales y de sistema
+*.tmp
+*.temp
+*.bak
+*~
+Thumbs.db
+Desktop.ini
+.cache
+coverage
